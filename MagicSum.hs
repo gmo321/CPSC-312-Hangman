@@ -16,27 +16,44 @@ type Game = Action -> State -> Result
 
 type Player = State -> Action
 
+-- word bank
+
 ------ The Magic Sum Game -------
 
-data Action = Action Int                   -- a move for a player is just an Int
+-- modify Action as player is a Char, [Char]
+data Action = Letter Char
+            -- | Word [Char]                   -- a move for a player is just Char or [Char]
          deriving (Ord,Eq)
-type InternalState = ([Action],[Action])   -- (self,other)
+type InternalState = ([Action], Int)   -- letter guessed, # of guesses
 
 
+-- options:
+-- player wins by guessing all the letters before limit # of guesses
+-- player wins by guessing the word
+-- plater loses by not guessing all the letters before # guesses
 magicsum :: Game
-magicsum move (State (mine,others) available) 
+magicsum move (State (mine) available) 
     | win move mine                = EndOfGame 1  magicsum_start     -- agent wins
-    | available == [move]          = EndOfGame 0  magicsum_start     -- no more moves, tie
+    | available == [move]          = EndOfGame 0  magicsum_start     -- no more moves, tie -- this option is removed
     | otherwise                    =
-          ContinueGame (State (others,(move:mine))   -- note roles have flipped
+          ContinueGame (State ((move:mine))   -- note roles have flipped
                         [act | act <- available, act /= move])
 
 -- win n ns = the agent wins if it selects n given it has already selected ns
 win :: Action -> [Action] -> Bool
-win (Action n) ns  = or [n+x+y==15 | Action x <- ns, Action y <- ns, x/=y]
+win (Action n) ns  = or [n+x+y==15 | Action x <- ns, Action y <- ns, x/=y] 
+
+-- if n is the last letter in the word being guessed
+    -- if n `elem` [word] and n is 'available'
+    -- all other letters have also been guessed
+-- then win condition is met
 
 
-magicsum_start = State ([],[]) [Action n | n <- [1..9]]
+
+magicsum_start = State ([]) [Action n | n <- [1..9]] --  change for letters
+-- computer needs to select a word, save as a temp variable
+-- 
+-- track which letters have been chosen, add an option for if they choose a letter already chosen
 
 -- show and read actions just as the integer
 instance Show Action where

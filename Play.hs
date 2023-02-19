@@ -16,14 +16,18 @@ import Text.Read   (readMaybe)
 
 type TournammentState = (Int,Int,Int)   -- wins, losses, ties
 
-
 play :: Game -> State -> Player -> TournammentState -> IO TournammentState
 
+-- edited to have three options
+-- guess a letter
+-- guess a word
+-- get a hint
 play game start_state opponent ts =
   let (wins, losses,ties) = ts in
   do
       putStrLn ("Tournament results: "++ show wins++ " wins "++show losses++" losses "++show ties++" ties")
-      putStrLn "Who starts? 0=you, 1=computer, 2=exit."
+      putStrLn "What would you like to do? 0 = guess a letter, 1 = guess a word, 2 = get a hint, 3 = exit" 
+      -- add option to quit game? 
       line <- getLine
       if line == "0"
         then
@@ -31,7 +35,9 @@ play game start_state opponent ts =
         else if line ==  "1"
              then computer_play game (ContinueGame start_state) opponent ts
         else if line == "2"
-            then return ts
+            then return computer_play game (ContinueGame start_state) opponent ts
+        else if line == "3"
+            then return ts 
         else play game start_state opponent ts
 
 person_play :: Game -> Result -> Player -> TournammentState -> IO TournammentState
@@ -54,11 +60,14 @@ person_play game (ContinueGame state) opponent ts =
                 putStrLn ("Illegal move: "++ show action)
                 person_play game (ContinueGame state) opponent ts
 
+-- end of game, tracking score                
 person_play game (EndOfGame val start_state) opponent ts =
   do
     newts <- update_tournament_state (-val) ts  -- val is value to computer; -val is value for person
     play game start_state opponent newts
 
+
+-- delete this function
 computer_play :: Game -> Result -> Player -> TournammentState -> IO TournammentState
 -- computer_play game current_result opponent ts
 -- person has played, the computer must now play
