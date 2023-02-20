@@ -5,7 +5,7 @@ module MagicSum where
 -- ghci
 -- :load MagicSum
 
-data State = State InternalState [Action]  -- internal_state available_actions
+data State = State InternalState [Action]  -- internal_state, available_actions
          deriving (Ord, Eq, Show)
 
 data Result = EndOfGame Double State    -- end of game: value, starting state
@@ -22,9 +22,12 @@ type Player = State -> Action
 
 -- modify Action as player is a Char, [Char]
 data Action = Letter Char
-            -- | Word [Char]                   -- a move for a player is just Char or [Char]
+            | Word [Char]                   -- a move for a player is just Char or [Char]
          deriving (Ord,Eq)
-type InternalState = ([Action], Int)   -- letter guessed, # of guesses
+
+
+type InternalState = ([Action], [Char], Int)   
+-- letters guessed, word to guess, # of guesses
 
 
 -- options:
