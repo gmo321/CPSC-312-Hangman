@@ -1,4 +1,6 @@
 -- CPSC 312 - 2023 - Games in Haskell
+{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
+{-# HLINT ignore "Use camelCase" #-}
 module MagicSum where
 
 -- To run it, try:
@@ -53,7 +55,7 @@ win (Action n) ns  = or [n+x+y==15 | Action x <- ns, Action y <- ns, x/=y]
 
 
 
-magicsum_start = State ([]) [Action n | n <- [1..9]] --  change for letters
+magicsum_start = State ([],) [Action n | n <- [1..9]] --  change for letters
 -- computer needs to select a word, save as a temp variable
 -- 
 -- track which letters have been chosen, add an option for if they choose a letter already chosen

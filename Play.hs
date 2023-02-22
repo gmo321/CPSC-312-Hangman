@@ -1,4 +1,7 @@
 -- CPSC 312 - 2023 - Games in Haskell
+{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
+{-# HLINT ignore "Use camelCase" #-}
+{-# HLINT ignore "Redundant bracket" #-}
 module Play where
 
 -- To run it, try:
@@ -8,9 +11,10 @@ module Play where
 import MagicSum
 --import CountGame
 
-import Minimax  -- make sure same game is imported in Minimax
+--import Minimax  -- make sure same game is imported in Minimax
 --import Minimax_mem
 
+import Hangman -- importing our hangman file
 import System.IO
 import Text.Read   (readMaybe)
 
@@ -26,7 +30,7 @@ play game start_state opponent ts =
   let (wins, losses,ties) = ts in
   do
       putStrLn ("Tournament results: "++ show wins++ " wins "++show losses++" losses "++show ties++" ties")
-      putStrLn "What would you like to do? 0 = guess a letter, 1 = guess a word, 2 = get a hint, 3 = exit" 
+      putStrLn "What would you like to do? 0 = guess a letter, 1 = get a hint, 2 = exit" 
       -- add option to quit game? 
       line <- getLine
       if line == "0"
@@ -35,8 +39,6 @@ play game start_state opponent ts =
         else if line ==  "1"
              then computer_play game (ContinueGame start_state) opponent ts
         else if line == "2"
-            then return computer_play game (ContinueGame start_state) opponent ts
-        else if line == "3"
             then return ts 
         else play game start_state opponent ts
 

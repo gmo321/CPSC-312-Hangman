@@ -1,45 +1,42 @@
+{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
+{-# HLINT ignore "Use newtype instead of data" #-}
+module Hangman where
 import System.IO
 import Text.Read   (readMaybe)
 import System.Random 
 -- I had to do stack install random in command to install the library, but check for your own computer
 
+-- adapted from MagicSum.hs
 
--- states adapted from MagicSum.hs
-
--- uncomment the {- to block out all the states
--- {-
 data State = State InternalState [Action]  -- internal_state, available_actions
-         deriving (Ord, Eq, Show)
+       --  deriving (Ord, Eq, Show)
 
         
 data Result = EndOfGame Double State    -- end of game: value, starting state
             | ContinueGame State        -- continue with new state
-         deriving (Eq, Show)
+        -- deriving (Eq, Show)
 
 type Game = Action -> State -> Result
 
 type Player = State -> Action
 
-
-
 -- Actions for player
-data Action = Letter Char
-            | Word [Char]                   -- a move for a player is just Char or [Char]
-         deriving (Ord,Eq)
-
+data Action = Letter Char  -- a move for a player is just Char
+        -- deriving (Ord,Eq)
 
 
 -- "global" variables
-type InternalState = ([Action], [Char], Int)   -- may need to be modified
--- letters guessed, word to guess, # of guesses
-
--- uncomment the -} to block out all the states
--- -}
+type InternalState = ([Action], IO [Char], Int)   -- may need to be modified
+-- (letters guessed, word to guess, # of guesses left)
 
 
 -- function for word bank
+-- filters out words less than 4 letters since we have 6 guesses
 wordBank :: [[Char]] 
-wordBank = ["test", "words", "hangman"]
+wordBank = 
+    do
+        let wlist = ["test", "words", "hangman", "two"] -- list of words
+        filter (\x -> length x >= 4) wlist -- filter
 
 -- function for finding length of word bank
 -- because length doesn't work on a nested list as I PAINFULLY found out
@@ -58,20 +55,28 @@ generateWord =
     return (wordBank !! num)
     
 
-
--- uncomment the {- to block out all the functions
--- {-
-
-
-
--- TODO:
--- start state function 
-hangman_start = State ([]) [Action n | n <- [1..9]] --  change for letters
+-- start state function
+-- empty list for letters guessed so far
 -- call generate_word to get the target word
--- use length word + 2 (?) for number of guesses
+-- start wth 6 guesses since there is only six body parts
 -- set the initial state
 
+hangmanStart :: State
+hangmanStart = State ([], generateWord, 6) [Letter n | n <-['a'..'z']]  --  change for letters
 
+--TODO:
+-- remove ties from tournament state
+-- write win function 
+hangman :: Game
+hangman move (State (letters_guessed, word, guesses) available) 
+    | win move word                = EndOfGame 1  hangmanStart     -- player wins
+    | guesses==0                   = EndOfGame 0  hangmanStart     -- no more guesses, player loses
+    | otherwise                    =
+          ContinueGame (State (letters_guessed, word, guesses-1)   -- note roles have flipped
+                        [act | act <- available, act /= move])
+
+
+{-
 
 -- main print out at start
 play :: IO()
@@ -107,17 +112,6 @@ letter_guess =
 
 
 
--- guessing a word
-
-word_guess :: IO()
-word_guess = 
-    do 
-        putStrLn "Please enter a word"
-        line <- getLine 
-        if line == "word"
-            return win -- figure out what win screen looks like
-            return -- wrong guess, reduce one guess, call play again
-
 
 --printing out a hint
 print_hint :: IO()
@@ -125,5 +119,4 @@ print_hint =
     putStrLn ++hint++
     call play again
 
--- uncomment the -} to block out all the functions
--- -}
+-}
