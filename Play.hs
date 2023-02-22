@@ -18,86 +18,92 @@ import Hangman -- importing our hangman file
 import System.IO
 import Text.Read   (readMaybe)
 
-type TournammentState = (Int,Int,Int)   -- wins, losses, ties
+type TournammentState = (Int,Int)   -- wins, losses
 
-play :: Game -> State -> Player -> TournammentState -> IO TournammentState
+play :: Game -> State -> TournammentState -> IO TournammentState
 
--- edited to have three options
--- guess a letter
--- guess a word
--- get a hint
-play game start_state opponent ts =
-  let (wins, losses,ties) = ts in
+-- dislay tournament results
+-- begin guessing
+play game start_state ts =
+  let (wins, losses) = ts in
   do
-      putStrLn ("Tournament results: "++ show wins++ " wins "++show losses++" losses "++show ties++" ties")
-      putStrLn "What would you like to do? 0 = guess a letter, 1 = get a hint, 2 = exit" 
-      -- add option to quit game? 
+      putStrLn ("Tournament results: "++ show wins++ " wins "++show losses++" losses ")
+      putStrLn "What would you like to do? 0 = start guessing, 1 = exit" 
       line <- getLine
       if line == "0"
         then
-            person_play game (ContinueGame start_state) opponent ts
+            person_play game (ContinueGame start_state) ts
         else if line ==  "1"
-             then computer_play game (ContinueGame start_state) opponent ts
-        else if line == "2"
             then return ts 
-        else play game start_state opponent ts
+        else play game start_state ts
 
-person_play :: Game -> Result -> Player -> TournammentState -> IO TournammentState
--- opponent has played, the person must now play
+person_play :: Game -> Result -> TournammentState -> IO TournammentState
+-- person is guessing a letter
 
-person_play game (ContinueGame state) opponent ts =
-   do
-      let State internal avail = state
-      putStrLn ("State: "++show internal++" choose one of "++show avail)
-      line <- getLine
-      case (readMaybe line :: Maybe Action) of
-        Nothing ->
-           person_play game (ContinueGame state) opponent ts
-        Just action ->
-           if (action `elem` avail)
-             then
-                computer_play game (game action state) opponent ts
-             else
-               do
-                putStrLn ("Illegal move: "++ show action)
-                person_play game (ContinueGame state) opponent ts
+person_play game (ContinueGame state) ts = 
+  do
+    putStrLn "What would you like to do? 0 = guess a letter, 1 = get a hint" 
+    line <- getLine
+    if line == "0"
+      then
+        letter_guess game (ContinueGame state) ts 
+    else if line ==  "1"
+        then return ts -- replace with hint function
+    else person_play game (ContinueGame state) ts 
+
+-- letter_guess game (EndOfGame value start_state) ts
+
+-- guessing a letter
+-- person_play in Play.hs?
+-- need Player? (Carmen: no, we don't really have an opponent so no need for Player)     
+letter_guess :: Game -> Result -> TournammentState -> IO TournammentState
+letter_guess game (ContinueGame state) ts = 
+    do 
+        let State (ltrs_guessed, word, guesses) avail = state
+        putStrLn("Please enter a letter in the Alphabet wrapped in single quotations marks")
+        input <- getChar 
+        if (not(isAlphabet input)) 
+            then 
+                do
+                putStrLn("Please choose a letter in the Alphabet")
+                letter_guess game (ContinueGame state) ts
+        else if (input `elem` ltrs_guessed)
+            then 
+                do
+                putStrLn("Please choose a letter that hasn't been chosen yet")
+                letter_guess game (ContinueGame state) ts
+        else 
+            do 
+            let print_word = word_str ltrs_guessed word i
+            putStrLn(print_word)
+            
+        
+            -- update letters_guessed here or in hangman? (Carmen:I think update here)
+            -- keep track of scores? (That's done via TournamentState so I think we're good)
+            -- Carmen: I think we need to call person_play again at the end just to make sure it loops after it prints the word
+    
+    -- build in option for if it is the last letter 
+    -- call play again
+      
 
 -- end of game, tracking score                
 person_play game (EndOfGame val start_state) opponent ts =
   do
-    newts <- update_tournament_state (-val) ts  -- val is value to computer; -val is value for person
-    play game start_state opponent newts
+    new_ts <- update_tournament_state (-val) ts  -- val is value to computer; -val is value for person
+    play game start_state opponent new_ts
 
 
--- delete this function
-computer_play :: Game -> Result -> Player -> TournammentState -> IO TournammentState
--- computer_play game current_result opponent ts
--- person has played, the computer must now play
-computer_play game (EndOfGame val  start_state) opponent ts =
-   do
-      newts <- update_tournament_state val ts
-      play game start_state opponent newts
-
-computer_play game (ContinueGame state) opponent ts =
-      let 
-          opponent_move = opponent state
-        in
-          do
-            putStrLn ("The computer chose "++show opponent_move)
-            person_play game (game opponent_move state) opponent ts
 
 update_tournament_state:: Double -> TournammentState -> IO TournammentState
 -- given value to the person, the tournament state, return the new tournament state
-update_tournament_state val (wins,losses,ties)
-  | val > 0 = do
-      putStrLn "You Won"
-      return (wins+1,losses,ties)
+update_tournament_state val (wins,losses)
+  | val == 1 = do
+      putStrLn "You won!"
+      return (wins+1,losses)
   | val == 0 = do
-      putStrLn "It's a tie"
-      return (wins,losses,ties+1)
-  | otherwise = do
-      putStrLn "Computer won!"
-      return (wins,losses+1,ties)
+      putStrLn "You lost!"
+      return (wins,losses+1)
+
 
 -- If you imported MagicSum here and in Minimax try:
 -- play magicsum magicsum_start simple_player (0,0,0)

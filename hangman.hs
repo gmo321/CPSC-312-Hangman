@@ -1,5 +1,6 @@
 {-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
 {-# HLINT ignore "Use newtype instead of data" #-}
+{-# HLINT ignore "Use camelCase" #-}
 module Hangman where
 import System.IO
 import Text.Read   (readMaybe)
@@ -18,7 +19,7 @@ data Result = EndOfGame Double State    -- end of game: value, starting state
 
 type Game = Action -> State -> Result
 
-type Player = State -> Action
+-- type Player = State -> Action -- I don't think we need Player, it's used as an "opponent" in MagicSum
 
 -- Actions for player
 data Action = Letter Char  -- a move for a player is just Char
@@ -72,64 +73,17 @@ hangman move (State (letters_guessed, word, guesses) available)
     | win move word                = EndOfGame 1  hangmanStart     -- player wins
     | guesses==0                   = EndOfGame 0  hangmanStart     -- no more guesses, player loses
     | otherwise                    =
-          ContinueGame (State (letters_guessed, word, guesses-1)   -- note roles have flipped
+          ContinueGame (State (letters_guessed, word, guesses-1)   -- reduce a guess
                         [act | act <- available, act /= move])
 
+-- letters_guessed might need to be edited in the third option to include the move
 
 -- {-
 
--- main print out at start
-play :: IO()
-play = do 
-    --putStrLn ("Tournament results: "++ show wins++ " wins "++show losses++" losses "++show ties++" ties")
-    putStrLn "What would you like to do? 0 = guess a letter, 1 = guess a word, 2 = get a hint, 3 = exit" 
-    line <- getLine
-    if line == "0"
-        then
-            letter_guess
-        else if line ==  "1"
-             then word_guess
-        else if line == "2"
-            then print_hint
-        else if line == "3"
-            then return quit
-        else "illegal"
-
--- letter_guess game (EndOfGame value start_state) ts
-
--- guessing a letter
--- person_play in Play.hs?
--- put in Play.hs?
--- need Player?
-letter_guess :: Game -> Result -> TournammentState -> IO TournammentState
-letter_guess game (ContinueGame state) ts = 
-    do 
-        let State (ltrs_guessed, word, guesses) avail = state
-        putStrLn("Please enter a letter in the Alphabet wrapped in single quotations marks")
-        input <- getChar 
-        if (not(isAlphabet input)) 
-            then 
-                do
-                putStrLn("Please choose a letter in the Alphabet")
-                letter_guess game (ContinueGame state) ts
-        else if (input `elem` ltrs_guessed)
-            then 
-                do
-                putStrLn("Please choose a letter that hasn't been chosen yet")
-                letter_guess game (ContinueGame state) ts
-        else 
-            do 
-            let print_word = word_str ltrs_guessed word i
-            putStrLn(print_word)
-            -- update letters_guessed here or in hangman?
-            -- keep track of scores?
-    
-    -- build in option for if it is the last letter 
-    -- call play again
 
 -- returns a string, displaying the letter if guessed correctly and dashes if not, 
 -- and dashes for rest of letters not guessed, and displaying the letters guessed correctly before
-word_str :: [Char] -> Char -> [Char] -> [Char]
+word_str :: [Char] -> [Char] -> Char -> [Char]
 word_str ltrs_g ans l  = [if (x == l || x `elem` ltrs_g ) then x else '_' | x <- ans]
 
 -- checks if input is an alphabet letter
