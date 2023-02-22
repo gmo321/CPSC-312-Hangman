@@ -76,7 +76,7 @@ hangman move (State (letters_guessed, word, guesses) available)
                         [act | act <- available, act /= move])
 
 
-{-
+-- {-
 
 -- main print out at start
 play :: IO()
@@ -95,20 +95,46 @@ play = do
             then return quit
         else "illegal"
 
--- guessing a letter
+-- letter_guess game (EndOfGame value start_state) ts
 
-letter_guess :: IO()
-letter_guess = 
+-- guessing a letter
+-- person_play in Play.hs?
+-- put in Play.hs?
+-- need Player?
+letter_guess :: Game -> Result -> TournammentState -> IO TournammentState
+letter_guess game (ContinueGame state) ts = 
     do 
-        putStrLn "Please enter a letter"
-        line <- getLine -- check if line is a char
-        --for loop through length of word 
-        if line `elem` "word" 
-            | print letter
-            | print "-"
+        let State (ltrs_guessed, word, guesses) avail = state
+        putStrLn("Please enter a letter in the Alphabet wrapped in single quotations marks")
+        input <- getChar 
+        if (not(isAlphabet input)) 
+            then 
+                do
+                putStrLn("Please choose a letter in the Alphabet")
+                letter_guess game (ContinueGame state) ts
+        else if (input `elem` ltrs_guessed)
+            then 
+                do
+                putStrLn("Please choose a letter that hasn't been chosen yet")
+                letter_guess game (ContinueGame state) ts
+        else 
+            do 
+            let print_word = word_str ltrs_guessed word i
+            putStrLn(print_word)
+            -- update letters_guessed here or in hangman?
+            -- keep track of scores?
     
     -- build in option for if it is the last letter 
     -- call play again
+
+-- returns a string, displaying the letter if guessed correctly and dashes if not, 
+-- and dashes for rest of letters not guessed, and displaying the letters guessed correctly before
+word_str :: [Char] -> Char -> [Char] -> [Char]
+word_str ltrs_g ans l  = [if (x == l || x `elem` ltrs_g ) then x else '_' | x <- ans]
+
+-- checks if input is an alphabet letter
+isAlphabet :: Char -> Bool
+isAlphabet i = i `elem` "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
 
 
@@ -119,4 +145,4 @@ print_hint =
     putStrLn ++hint++
     call play again
 
--}
+-- -}
