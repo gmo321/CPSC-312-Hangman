@@ -90,13 +90,78 @@ word_str ltrs_g ans l  = [if (x == l || x `elem` ltrs_g ) then x else '_' | x <-
 isAlphabet :: Char -> Bool
 isAlphabet i = i `elem` "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
+{-
+-- guessing a word
 
+word_guess :: IO()
+word_guess = 
+    do 
+        putStrLn "Please enter a word"
+        line <- getLine 
+        if line == "word"
+            return win -- figure out what win screen looks like
+            return wrong_guess-- wrong guess, reduce one guess, call play again
+-}
 
+-- return if all letters in word are guessed; Player wins
+win :: Char -> [Char] -> 
+win = 
+    do 
+        putStrLn "You guessed correctly! The word is " ++ show_word
+        putStrLn "Play again = 0 or quit = 1"
+        line <- getLine
+        if line == 0
+            return play
+            else if line == 1
+                then return ts
+
+-- TODO
+-- return if letter guessed is not in word or word guessed is incorrect
+wrong_guess :: Char -> [Char] ->  
+wrong_guess = putStrLn "You guessed incorrectly, guess again!"
+    return play
 
 --printing out a hint
 print_hint :: IO()
 print_hint = 
-    putStrLn ++hint++
-    call play again
+    do 
+        putStrLn ++hint++
+        call play again
 
+
+hint :: [Char] -> [Char]
+-- return hint:
+    --number of vowels in word
+    --check if word has letter == "aeiou", if true, return length 
+    --reveal one letter in word?
+
+    -- if remaining letters are not in [letter_guessed] return first letter in list
+    
+first_hint = putStrLn "The number of vowels in the word are " ++ num_vowels
+
+second_hint = reveal_letter
+
+third_hint = reveal_letter
+
+
+-- TODO
+reveal_letter :: [Char] -> [Char]
+reveal_letter word
+    | if (h == "-") 
+        then print head 
+
+
+-- TODO
+show_word :: [Char] -> [Char]
+show_word word = putStrLn word
+
+-- TODO
+num_vowels :: [Char] -> Int
+num_vowels word = 
+    | if elem in word == "aeiou"
+        then return length word
+        else putStrLn "This word contains no vowels."
+
+
+-- uncomment the -} to block out all the functions
 -- -}
