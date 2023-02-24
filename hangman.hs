@@ -92,24 +92,19 @@ isAlphabet :: Char -> Bool
 isAlphabet i = i `elem` "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
 
--- TODO
--- function called when all letters in word are guessed; Player wins
-win :: Char -> [Char] -> Result
-win move word = 
-    do 
-        putStrLn "You guessed the word correctly! The word is " ++ word
-
--- anything else needed in win?
--- can i just display the word like this?
+-- takes in move, the answer, the letters guessed and returns true if word_str matches ans
+win :: Char -> [Char] -> [Char] -> Bool
+win move ans ltrs_g = 
+    let l = move in
+        do 
+        word_str ltrs_g ans l == ans
 
 
 -- TODO: test
 -- takes ans and returns IO output
--- return hint:
-    --number of vowels in word
-    --check if word has letter == "aeiou", if true, return length 
-    --reveal one letter in word?
-    -- if remaining letters are not in [letter_guessed] return first letter in list
+-- return 3 hints:
+    -- number of vowels in word
+    -- reveal one letter in word
 print_hint :: [Char] Int -> IO()
 print_hint word hints = 
     do 
@@ -121,14 +116,15 @@ print_hint word hints =
                 if (hints == 3)
                     then return putStrLn "The total number of vowels in the word are " ++ num_vowels
                 else if (hints > 0)
-                    then reveal_letter
+                    then reveal_letter word ltrs_g
                 else putStrLn "There are no hints left."
             return letter_guess game (ContinueGame state) ts
 
 -- TODO: restrict user from getting hint with 1 letter left?
 -- Takes the answer and letters already guessed and returns the first letter that is in word and has not been guessed yet
-reveal_letter ::  Eq a => [a] -> [a] -> a
-reveal_letter word ltrs_g = head [c | c <- word, c `notElem` ltrs_g] 
+reveal_letter :: [Char] -> [Char] -> Char
+reveal_letter word ltrs_g = 
+    head [c | c <- word, c `notElem` ltrs_g] 
 
 
 -- checks if char is a vowel
