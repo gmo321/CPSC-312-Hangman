@@ -45,10 +45,9 @@ person_play game (ContinueGame state) ts =
     putStrLn "What would you like to do? 0 = guess a letter, 1 = get a hint" 
     line <- getLine
     if line == "0"
-      then
-        letter_guess game (ContinueGame state) ts 
+      then letter_guess game (ContinueGame state) ts 
     else if line ==  "1"
-        then return ts -- replace with hint function
+        then return print_hint 
     else person_play game (ContinueGame state) ts 
 
 -- letter_guess game (EndOfGame value start_state) ts
@@ -59,7 +58,7 @@ person_play game (ContinueGame state) ts =
 letter_guess :: Game -> Result -> TournammentState -> IO TournammentState
 letter_guess game (ContinueGame state) ts = 
     do 
-        let State (ltrs_guessed, word, guesses) avail = state
+        let State (ltrs_guessed, word, guesses, hints) avail = state
         putStrLn("Please enter a letter in the Alphabet wrapped in single quotations marks")
         input <- getChar 
         if (not(isAlphabet input)) 
@@ -76,7 +75,7 @@ letter_guess game (ContinueGame state) ts =
             do 
             let print_word = word_str ltrs_guessed word i
             putStrLn(print_word)
-            
+        
         
             -- update letters_guessed here or in hangman? (Carmen:I think update here)
             -- keep track of scores? (That's done via TournamentState so I think we're good)

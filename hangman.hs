@@ -27,8 +27,8 @@ data Action = Letter Char  -- a move for a player is just Char
 
 
 -- "global" variables
-type InternalState = ([Action], IO [Char], Int)   -- may need to be modified
--- (letters guessed, word to guess, # of guesses left)
+type InternalState = ([Action], IO [Char], Int, Int)   -- may need to be modified
+-- (letters guessed, word to guess, # of guesses left, # of hints left)
 
 
 -- function for word bank
@@ -60,20 +60,21 @@ generateWord =
 -- empty list for letters guessed so far
 -- call generate_word to get the target word
 -- start wth 6 guesses since there is only six body parts
+-- start with 3 hints to use
 -- set the initial state
 
 hangmanStart :: State
-hangmanStart = State ([], generateWord, 6) [Letter n | n <-['a'..'z']]  --  change for letters
+hangmanStart = State ([], generateWord, 6, 3) [Letter n | n <-['a'..'z']]  --  change for letters
 
 --TODO:
 -- remove ties from tournament state
 -- write win function 
 hangman :: Game
-hangman move (State (letters_guessed, word, guesses) available) 
+hangman move (State (letters_guessed, word, guesses, hints) available) 
     | win move word                = EndOfGame 1  hangmanStart     -- player wins
     | guesses==0                   = EndOfGame 0  hangmanStart     -- no more guesses, player loses
     | otherwise                    =
-          ContinueGame (State (letters_guessed, word, guesses-1)   -- reduce a guess
+          ContinueGame (State (letters_guessed, word, guesses-1, hints)   -- reduce a guess
                         [act | act <- available, act /= move])
 
 -- letters_guessed might need to be edited in the third option to include the move
@@ -90,78 +91,53 @@ word_str ltrs_g ans l  = [if (x == l || x `elem` ltrs_g ) then x else '_' | x <-
 isAlphabet :: Char -> Bool
 isAlphabet i = i `elem` "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
-{-
--- guessing a word
-
-word_guess :: IO()
-word_guess = 
-    do 
-        putStrLn "Please enter a word"
-        line <- getLine 
-        if line == "word"
-            return win -- figure out what win screen looks like
-            return wrong_guess-- wrong guess, reduce one guess, call play again
--}
-
--- return if all letters in word are guessed; Player wins
-win :: Char -> [Char] -> 
-win = 
-    do 
-        putStrLn "You guessed correctly! The word is " ++ show_word
-        putStrLn "Play again = 0 or quit = 1"
-        line <- getLine
-        if line == 0
-            return play
-            else if line == 1
-                then return ts
 
 -- TODO
--- return if letter guessed is not in word or word guessed is incorrect
-wrong_guess :: Char -> [Char] ->  
-wrong_guess = putStrLn "You guessed incorrectly, guess again!"
-    return play
-
---printing out a hint
-print_hint :: IO()
-print_hint = 
+-- function called when all letters in word are guessed; Player wins
+win :: Char -> [Char] -> Result
+win move word = 
     do 
-        putStrLn ++hint++
-        call play again
+        putStrLn "You guessed the word correctly! The word is " ++ word
+
+-- anything else needed in win?
+-- can i just display the word like this?
 
 
-hint :: [Char] -> [Char]
+-- TODO: test
+-- takes ans and returns IO output
 -- return hint:
     --number of vowels in word
     --check if word has letter == "aeiou", if true, return length 
     --reveal one letter in word?
-
     -- if remaining letters are not in [letter_guessed] return first letter in list
-    
-first_hint = putStrLn "The number of vowels in the word are " ++ num_vowels
+print_hint :: [Char] Int -> IO()
+print_hint word hints = 
+    do 
+        putStrLn "You get three hints. Press 0 for a hint."
+        line <- getLine
+        if (line == "0")
+            then subtract 1 hints
+                do 
+                if (hints == 3)
+                    then return putStrLn "The total number of vowels in the word are " ++ num_vowels
+                else if (hints > 0)
+                    then reveal_letter
+                else putStrLn "There are no hints left."
+            return letter_guess game (ContinueGame state) ts
 
-second_hint = reveal_letter
-
-third_hint = reveal_letter
-
-
--- TODO
-reveal_letter :: [Char] -> [Char]
-reveal_letter word
-    | if (h == "-") 
-        then print head 
+-- TODO: restrict user from getting hint with 1 letter left?
+-- Takes the answer and letters already guessed and returns the first letter that is in word and has not been guessed yet
+reveal_letter ::  Eq a => [a] -> [a] -> a
+reveal_letter word ltrs_g = head [c | c <- word, c `notElem` ltrs_g] 
 
 
--- TODO
-show_word :: [Char] -> [Char]
-show_word word = putStrLn word
+-- checks if char is a vowel
+isVowel :: Char -> Bool 
+isVowel x = x `elem` "aeiou"
 
--- TODO
-num_vowels :: [Char] -> Int
-num_vowels word = 
-    | if elem in word == "aeiou"
-        then return length word
-        else putStrLn "This word contains no vowels."
-
+-- returns num of vowels in string
+num_vowels :: [Char] -> Int 
+num_vowels = length . filter isVowel
 
 -- uncomment the -} to block out all the functions
 -- -}
