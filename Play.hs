@@ -58,7 +58,7 @@ letter_guess game (ContinueGame state) ts =
         let State (ltrs_guessed, word, _, _) avail = state
         putStrLn("Please enter a letter in the Alphabet wrapped in single quotations marks")
         input <- getChar
-        let lc_input = toLower(input)
+        let lc_input = toLower input
         case (readMaybe lc_input :: Maybe Action) of
             Nothing ->
                 letter_guess game (ContinueGame state) ts
