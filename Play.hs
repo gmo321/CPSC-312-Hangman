@@ -50,39 +50,34 @@ person_play game (ContinueGame state) ts =
         then return print_hint 
     else person_play game (ContinueGame state) ts 
 
--- letter_guess game (EndOfGame value start_state) ts
 
 -- guessing a letter
--- person_play in Play.hs?
--- need Player? (Carmen: no, we don't really have an opponent so no need for Player)     
 letter_guess :: Game -> Result -> TournammentState -> IO TournammentState
 letter_guess game (ContinueGame state) ts = 
     do 
-        let State (ltrs_guessed, word, guesses, hints) avail = state
+        let State (ltrs_guessed, word, _, _) avail = state
         putStrLn("Please enter a letter in the Alphabet wrapped in single quotations marks")
-        input <- getChar 
-        if (not(isAlphabet input)) 
-            then 
-                do
-                putStrLn("Please choose a letter in the Alphabet")
+        input <- getChar
+        let lc_input = toLower(input)
+        case (readMaybe lc_input :: Maybe Action) of
+            Nothing ->
                 letter_guess game (ContinueGame state) ts
-        else if (input `elem` ltrs_guessed)
-            then 
-                do
-                putStrLn("Please choose a letter that hasn't been chosen yet")
-                letter_guess game (ContinueGame state) ts
-        else 
-            do 
-            let print_word = word_str ltrs_guessed word i
-            putStrLn(print_word)
+            Just action -> 
+                if (not(isAlphabet action)) 
+                    then 
+                        do
+                        putStrLn("Please choose a letter in the Alphabet")
+                        letter_guess game (ContinueGame state) ts
+                else if (action `elem` ltrs_guessed)
+                    then 
+                        do
+                        putStrLn("Please choose a letter that hasn't been chosen yet")
+                        letter_guess game (ContinueGame state) ts
+                else 
+                    do 
+                    let print_word = word_str ltrs_guessed word action
+                    putStrLn(print_word)
         
-        
-            -- update letters_guessed here or in hangman? (Carmen:I think update here)
-            -- keep track of scores? (That's done via TournamentState so I think we're good)
-            -- Carmen: I think we need to call person_play again at the end just to make sure it loops after it prints the word
-    
-    -- build in option for if it is the last letter 
-    -- call play again
       
 
 -- end of game, tracking score                

@@ -74,10 +74,9 @@ hangman move (State (letters_guessed, word, guesses, hints) available)
     | win move word                = EndOfGame 1  hangmanStart     -- player wins
     | guesses==0                   = EndOfGame 0  hangmanStart     -- no more guesses, player loses
     | otherwise                    =
-          ContinueGame (State (letters_guessed, word, guesses-1, hints)   -- reduce a guess
+          ContinueGame (State ((move:letters_guessed), word, guesses-1, hints)   -- reduce a guess
                         [act | act <- available, act /= move])
 
--- letters_guessed might need to be edited in the third option to include the move
 
 -- {-
 
@@ -89,7 +88,14 @@ word_str ltrs_g ans l  = [if (x == l || x `elem` ltrs_g ) then x else '_' | x <-
 
 -- checks if input is an alphabet letter
 isAlphabet :: Char -> Bool
-isAlphabet i = i `elem` "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+isAlphabet i = i `elem` "abcdefghijklmnopqrstuvwxyz"
+
+-- Citation: https://www.cs.ubc.ca/~poole/cs312/2023/as2/As2sol.hs
+-- if a character is an upper-case letter, returns the lower-case letter, otherwise remain unchanged
+toLower :: Char -> Char
+toLower x 
+    | x `elem` "ABCDEFGHIJKLMNOPQRSTUVWXYZ" = toEnum(fromEnum x + fromEnum 'a' - fromEnum 'A')
+    | otherwise = x
 
 
 -- takes in move, the answer, the letters guessed and returns true if word_str matches ans
