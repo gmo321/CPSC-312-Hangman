@@ -57,28 +57,28 @@ letter_guess game (ContinueGame state) ts =
     do 
         let State (ltrs_guessed, word, _, _) avail = state
         putStrLn("Please enter a letter in the Alphabet wrapped in single quotations marks")
-        input <- getChar
+        input <- getChar 
         let lc_input = toLower input
         case (readMaybe lc_input :: Maybe Action) of
             Nothing ->
                 letter_guess game (ContinueGame state) ts
             Just action -> 
                 if (not(isAlphabet action)) 
-                    then 
-                        do
-                        putStrLn("Please choose a letter in the Alphabet")
-                        letter_guess game (ContinueGame state) ts
+            then 
+                do
+                putStrLn("Please choose a letter in the Alphabet")
+                letter_guess game (ContinueGame state) ts
                 else if (action `elem` ltrs_guessed)
-                    then 
-                        do
-                        putStrLn("Please choose a letter that hasn't been chosen yet")
-                        letter_guess game (ContinueGame state) ts
-                else 
-                    do 
+            then 
+                do
+                putStrLn("Please choose a letter that hasn't been chosen yet")
+                letter_guess game (ContinueGame state) ts
+        else 
+            do 
                     let print_word = word_str ltrs_guessed word action
-                    putStrLn(print_word)
+            putStrLn(print_word)
         
-      
+        
 
 -- end of game, tracking score                
 person_play game (EndOfGame val start_state) opponent ts =

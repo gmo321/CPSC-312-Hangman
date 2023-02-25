@@ -102,7 +102,7 @@ toLower x
 win :: Char -> [Char] -> [Char] -> Bool
 win move ans ltrs_g = 
     let l = move in
-        do 
+    do 
         word_str ltrs_g ans l == ans
 
 
@@ -140,6 +140,103 @@ isVowel x = x `elem` "aeiou"
 -- returns num of vowels in string
 num_vowels :: [Char] -> Int 
 num_vowels = length . filter isVowel
+
+
+
+
+----- Drawing the hangman -----
+
+drawHangman:: Int -> IO()
+drawHangman guesses  
+    | guesses == 6   = sixGuesses
+    | guesses == 5   = fiveGuesses
+    | guesses == 4   = fourGuesses
+    | guesses == 3   = threeGuesses
+    | guesses == 2   = twoGuesses
+    | guesses == 1   = oneGuess
+    | guesses == 0   = zeroGuesses
+
+
+----- functions to print the hangman based on guesses -----
+
+-- 0 wrong guesses, 6 guesses left        
+sixGuesses:: IO()
+sixGuesses = 
+    do
+        putStrLn("+-----------+")
+        putStrLn("|           |")
+        putStrLn("|           ")
+        putStrLn("|          ")
+        putStrLn("|          ")
+        putStrLn("=")
+
+-- 1 wrong guesses, 5 guesses left        
+fiveGuesses:: IO()
+fiveGuesses = 
+    do
+        putStrLn("+-----------+")
+        putStrLn("|           |")
+        putStrLn("|           O")
+        putStrLn("|          ")
+        putStrLn("|          ")
+        putStrLn("=")
+
+-- 2 wrong guesses, 4 guesses left        
+fourGuesses:: IO()
+fourGuesses = 
+    do
+        putStrLn("+-----------+")
+        putStrLn("|           |")
+        putStrLn("|           O")
+        putStrLn("|           |")
+        putStrLn("|          ")
+        putStrLn("=")
+
+-- 3 wrong guesses, 3 guesses left        
+threeGuesses:: IO()
+threeGuesses = 
+    do
+        putStrLn("+-----------+")
+        putStrLn("|           |")
+        putStrLn("|           O")
+        putStrLn("|          \\|")
+        putStrLn("|          ")
+        putStrLn("=")
+
+-- 4 guesses, 2 guesses left        
+twoGuesses:: IO()
+twoGuesses = 
+    do
+        putStrLn("+-----------+")
+        putStrLn("|           |")
+        putStrLn("|           O")
+        putStrLn("|          \\|/")
+        putStrLn("|          ")
+        putStrLn("=")
+
+-- 5 guesses, 1 guess left        
+oneGuess:: IO()
+oneGuess = 
+    do
+        putStrLn("+-----------+")
+        putStrLn("|           |")
+        putStrLn("|           O")
+        putStrLn("|          \\|/")
+        putStrLn("|          / ")
+        putStrLn("=")
+
+
+-- 6 guesses, 0 guesses left        
+zeroGuesses:: IO()
+zeroGuesses = 
+    do
+        putStrLn("+-----------+")
+        putStrLn("|           |")
+        putStrLn("|           O")
+        putStrLn("|          \\|/")
+        putStrLn("|          / \\")
+        putStrLn("=")
+
 
 -- uncomment the -} to block out all the functions
 -- -}
