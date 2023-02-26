@@ -31,7 +31,7 @@ play game start_state ts =
       if line == "0"
         then
             do
-                putStrLn ("Please enter a random number between 0 and " ++show (wBLength wordBank))
+                putStrLn ("Please enter a random number between 0 and " ++show ((wBLength wordBank) - 1))
                 line1 <- getLine
                 case (readMaybe line1 :: Maybe Int) of
                     Nothing -> 
@@ -128,7 +128,7 @@ print_hint game (ContinueGame state) ts =
                     if (hints == 3)
                         then 
                             do
-                                putStrLn ("The total number of vowels in the word are " ++show (num_vowels word))
+                                putStrLn ("The total number of times a vowel appears in the word is " ++show (num_vowels word))
                                 person_play game (ContinueGame (updateHint state)) ts 
                     else if (hints > 0)
                         then 
