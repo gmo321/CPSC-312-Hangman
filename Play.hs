@@ -73,6 +73,9 @@ letter_guess :: Game -> Result -> TournammentState -> IO TournammentState
 letter_guess game (ContinueGame state) ts = 
     do 
         let State (ltrs_guessed, word, guesses, hints) avail = state
+        putStrLn("Number of guesses left: " ++ show guesses)
+        -- Number of guesses is not decrementing in hangman function!
+        -- hangman figure is also not changing when guess is wrong
         putStrLn("Please enter a letter in the alphabet wrapped in single quotations marks")
         ---- test what happens if they enter a letter not wrapped in single quotation mark
         input <- getLine
@@ -82,29 +85,29 @@ letter_guess game (ContinueGame state) ts =
             Just guess ->
                 do
                     let lc_guess = toLower guess 
-                    if (not(isAlphabet guess)) -- if not a letter
+                    if (not(isAlphabet lc_guess)) -- if not a letter
                         then 
                             do
                                 putStrLn("Please choose a letter in the alphabet.")
                                 letter_guess game (ContinueGame state) ts
-                    else if (guess `elem` ltrs_guessed) -- if guessing a letter already guessed
+                    else if (lc_guess `elem` ltrs_guessed) -- if guessing a letter already guessed
                         then 
                             do
                                 putStrLn("Please choose a letter that hasn't been chosen yet")
                                 letter_guess game (ContinueGame state) ts
                     else 
                         do 
-                            let print_word = word_str ltrs_guessed word guess
+                            let print_word = word_str ltrs_guessed word lc_guess
                             putStrLn(print_word)
                             drawHangman (state)
-                            person_play game (game (guess) state) ts
+                            person_play game (game (lc_guess) state) ts
 
 -- printing a hint
 print_hint :: Game -> Result -> TournammentState -> IO TournammentState
 print_hint game (ContinueGame state) ts = 
     do
         let State (ltrs_guessed, word, guesses, hints) avail = state
-        putStrLn ("You have" ++show hints++ "hints left. Press 0 for a hint.")
+        putStrLn ("You have " ++show hints++ " hints left. Press 0 for a hint.")
         line <- getLine
         if (line == "0")
             then
