@@ -73,7 +73,8 @@ letter_guess :: Game -> Result -> TournammentState -> IO TournammentState
 letter_guess game (ContinueGame state) ts = 
     do 
         let State (ltrs_guessed, word, guesses, hints) avail = state
-        putStrLn("Number of guesses left: " ++ show guesses)
+        -- show guess is one less???
+        putStrLn("Available moves: " ++ show avail)
         -- Number of guesses is not decrementing in hangman function!
         -- hangman figure is also not changing when guess is wrong
         putStrLn("Please enter a letter in the alphabet wrapped in single quotations marks")
@@ -99,7 +100,19 @@ letter_guess game (ContinueGame state) ts =
                         do 
                             let print_word = word_str ltrs_guessed word lc_guess
                             putStrLn(print_word)
-                            drawHangman (state)
+                            if lc_guess `elem` word 
+                                then
+                                    do
+                                        putStrLn("Correct Guess!")
+                                        putStrLn("Number of guesses left: " ++ show guesses) 
+                                        drawHangman (state)
+                                else 
+                                    do
+                                        putStrLn("Incorrect Guess!")
+                                        putStrLn("Number of guesses left: " ++ show (guesses - 1))
+                                        -- exception when guesses < 0
+                                        -- might need an if statement
+                                        drawHangman (State (ltrs_guessed, word, guesses - 1, hints) avail)
                             person_play game (game (lc_guess) state) ts
 
 -- printing a hint

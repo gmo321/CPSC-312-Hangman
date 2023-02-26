@@ -65,9 +65,9 @@ generateWord (State (ltrs_guessed, word, guesses, hints) avail) num =
 hangman :: Game
 hangman move (State (ltrs_guessed, word, guesses, hints) available) 
     | win move word ltrs_guessed          = EndOfGame 1  hangmanStart     -- player wins
-    | guesses==0                          = EndOfGame 0  hangmanStart     -- no more guesses, player loses
-    | move `elem` available               = 
-        ContinueGame (State ((move:ltrs_guessed), word, guesses, hints)   -- reduce a guess
+    | guesses==1                          = EndOfGame 0  hangmanStart     -- no more guesses, player loses
+    | move `elem` word               = 
+        ContinueGame (State ((move:ltrs_guessed), word, guesses, hints)   -- correct guess, number of guess is not reduced
                         [act | act <- available, act /= move])
     | otherwise                           =
           ContinueGame (State ((move:ltrs_guessed), word, guesses - 1, hints)   -- reduce a guess
