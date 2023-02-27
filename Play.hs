@@ -38,7 +38,7 @@ play game start_state ts =
                         play game start_state ts
                     Just num ->  
                         do  
-                            if num < 0 || num > (wBLength wordBank)
+                            if num < 0 || num >= (wBLength wordBank)
                                 then 
                                     do 
                                 putStrLn ("Number not in defined range.")

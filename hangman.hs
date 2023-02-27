@@ -153,21 +153,17 @@ toLower x
 
 
 
-
 -- to update # of hints in internal state
 updateHint :: State -> State
-updateHint (State (ltrs_guessed, word, guesses, hints) avail) = 
-    State (ltrs_guessed, word, guesses, hints - 1) avail
+updateHint (State (ltrs_guessed, word, guesses, hints) avail)
+    | hints == 0 = State (ltrs_guessed, word, guesses, hints) avail
+    | otherwise  = State (ltrs_guessed, word, guesses, hints - 1) avail
 
 
 
--- TODO: restrict user from getting hint with 1 letter left?
 -- Takes the answer and letters already guessed and returns the first letter that is in word and has not been guessed yet
-
---- repeated letters????
 reveal_letter :: [Char] -> [Char] -> Char
-reveal_letter ans ltrs_g = 
-    head [c | c <- ans, c `notElem` ltrs_g] 
+reveal_letter ans ltrs_g = head [c | c <- ans, c `notElem` ltrs_g] 
 
 
 -- checks if char is a vowel
