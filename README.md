@@ -5,10 +5,10 @@ The Hangman game implemented in Haskell. Allows player to guess a word from a se
 
 
 ## To Run Code: ##
-*run stack build
-*run stack ghci
-*:load Play
-*play hangman hangmanStart (0,0)
+* run stack build
+* run stack ghci
+* :load Play
+* play hangman hangmanStart (0,0)
 
 ## Authors ##
 Gloria Mo, Christine Yang, Carmen Yu
