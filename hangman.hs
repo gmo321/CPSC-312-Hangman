@@ -8,6 +8,10 @@ import System.IO
 import Text.Read   (readMaybe)
 import Control.Monad
 
+-- To run it, try:
+-- ghci
+-- :load Play
+-- play hangman hangmanStart (0,0)
 
 ----- Type Definitions -----
 
@@ -21,8 +25,7 @@ data Result = EndOfGame Double State    -- end of game: value, starting state
 
 type Game = Char -> State -> Result
 
-
-data Action = Letter Char  -- a move for a player is just Char
+data Action = Letter Char  -- a move for a player is just a Char
          deriving (Ord,Eq)
 
 type InternalState = ([Char], [Char], Int, Int)   
@@ -69,11 +72,11 @@ wordBank = ["instrument","lands","remark","rugby","please","announces","prof","c
             "test","afterwards","discussing","blood","supplied","renaissance","currency","behind","topic","live","blocks","intended","offset","mount","administrators","photos","mitsubishi","words","continuing","dozen","semi","round","beneficial","uncertainty","eur","beliefs","copy","become","agriculture",
             "iii","remarks","champagne","oxford","relationships","when","agents","accepted","iron","televisions","transition","formats","thick","charter","accredited","tiger","belly","warning","indonesian","papua","wage","merchant","viewer","flip","council","killing","reality","households","dimensions","adjacent","md","harley","night","bali"] -- list of words
 
--- filters out words less than 4 letters since we have 6 guesses
+-- filters out words with less than 4 letters since we have 6 guesses
 wBFilter :: [[Char]]
 wBFilter = filter (\x -> length x >= 4) wordBank -- filter
 
--- function for finding length of word bank
+-- finds the length of the word bank
 wBLength :: [t] -> Int
 wBLength [] = 0
 wBLength (h:t) = 1 + wBLength t
@@ -113,8 +116,8 @@ hangman move (State (ltrs_guessed, word, guesses, hints) available)
                         [act | act <- available, act /= move])
 
                         
--- function to check if player has won
--- takes in move, the answer, the letters guessed and returns true if all letters in word is in letters gussed
+-- win move word ltrs_guessed checks if player has won
+-- takes in move, the answer, the letters guessed and returns true if all letters in word is in letters guessed
 win :: Char -> [Char] -> [Char] -> Bool
 win move word ltrs_guessed =  and [ x `elem` move:ltrs_guessed | x <- word]
 
@@ -122,40 +125,41 @@ win move word ltrs_guessed =  and [ x `elem` move:ltrs_guessed | x <- word]
 
 ----- Helper Functions -----
 
-
+-- word_str ltrs_g ans l takes the letters guessed so far, the word being guessed, and the letter (current guess)
 -- returns a string, displaying the letter if guessed correctly and dashes if not, 
 -- and dashes for rest of letters not guessed, and displaying the letters guessed correctly before
 word_str :: [Char] -> [Char] -> Char -> [Char]
-word_str ltrs_g ans l  = [if (x == l || x `elem` ltrs_g ) then x else '_' | x <- ans]
+word_str ltrs_g ans l  = [if (x == l || x `elem` ltrs_g) then x else '_' | x <- ans]
 
--- checks if input is an alphabet letter
+-- isAlphabet i returns True if input i is an alphabet letter, returns False otherwise
 isAlphabet :: Char -> Bool
 isAlphabet i = i `elem` "abcdefghijklmnopqrstuvwxyz"
 
 -- Citation: https://www.cs.ubc.ca/~poole/cs312/2023/as2/As2sol.hs
 -- Copyright D. Poole, 2023.
 -- Referenced the toUpper function
--- if a character is an upper-case letter, returns the lower-case letter, otherwise remain unchanged
+-- toLower x returns the lower-case letter if x is an upper-case letter, otherwise x remain unchanged
 toLower :: Char -> Char
 toLower x 
     | x `elem` "ABCDEFGHIJKLMNOPQRSTUVWXYZ" = toEnum(fromEnum x + fromEnum 'a' - fromEnum 'A')
     | otherwise = x
 
--- to update # of hints in internal state
+-- updateHint updates number of hints in internal state
 updateHint :: State -> State
 updateHint (State (ltrs_guessed, word, guesses, hints) avail)
     | hints == 0 = State (ltrs_guessed, word, guesses, hints) avail
     | otherwise  = State (ltrs_guessed, word, guesses, hints - 1) avail
 
--- takes the answer and letters already guessed and returns the first letter that is in word and has not been guessed yet
+-- reveal_letter ans ltrs_g takes the answer and letters already guessed and returns the first letter that 
+-- is in word and has not been guessed yet
 reveal_letter :: [Char] -> [Char] -> Char
 reveal_letter ans ltrs_g = head [c | c <- ans, c `notElem` ltrs_g] 
 
--- checks if char is a vowel
+-- isVowel x returns True if x is a vowel, False otherwise
 isVowel :: Char -> Bool 
 isVowel x = x `elem` "aeiou"
 
--- returns num of vowels in string
+-- num_vowels returns the number of vowels in string
 num_vowels :: [Char] -> Int 
 num_vowels = length . filter isVowel
 
@@ -251,3 +255,6 @@ zeroGuesses =
         putStrLn("|          / \\")
         putStrLn("=")
 
+-- Test cases
+--play hangman hangmanStart (2,2)
+--play hangman hangmanStart (0,1)

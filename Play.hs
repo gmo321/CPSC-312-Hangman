@@ -5,6 +5,10 @@
 
 module Play where
 
+-- To run it, try:
+-- ghci
+-- :load Play
+
 import Hangman
  -- importing our hangman file
 import System.IO
@@ -16,7 +20,6 @@ type TournammentState = (Int,Int)   -- wins, losses
 
 -- function for starting the game and setting the initial state
 play :: Game -> State -> TournammentState -> IO TournammentState
-
 
 play game start_state ts =
   let (wins, losses) = ts in
