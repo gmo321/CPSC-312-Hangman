@@ -19,14 +19,10 @@ data Result = EndOfGame Double State    -- end of game: value, starting state
 
 type Game = Char -> State -> Result
 
--- type Player = State -> Action -- I don't think we need Player, it's used as an "opponent" in MagicSum
-
 -- Actions for player
 data Action = Letter Char  -- a move for a player is just Char
          deriving (Ord,Eq)
 
-
--- "global" variables
 type InternalState = ([Char], [Char], Int, Int)   -- may need to be modified
 -- (letters guessed, word to guess, # of guesses left, # of hints left)
 
@@ -145,13 +141,13 @@ isAlphabet :: Char -> Bool
 isAlphabet i = i `elem` "abcdefghijklmnopqrstuvwxyz"
 
 -- Citation: https://www.cs.ubc.ca/~poole/cs312/2023/as2/As2sol.hs
+-- Copyright D. Poole, 2023.
+-- Referenced the toUpper function
 -- if a character is an upper-case letter, returns the lower-case letter, otherwise remain unchanged
 toLower :: Char -> Char
 toLower x 
     | x `elem` "ABCDEFGHIJKLMNOPQRSTUVWXYZ" = toEnum(fromEnum x + fromEnum 'a' - fromEnum 'A')
     | otherwise = x
-
-
 
 -- to update # of hints in internal state
 updateHint :: State -> State
@@ -159,12 +155,9 @@ updateHint (State (ltrs_guessed, word, guesses, hints) avail)
     | hints == 0 = State (ltrs_guessed, word, guesses, hints) avail
     | otherwise  = State (ltrs_guessed, word, guesses, hints - 1) avail
 
-
-
 -- Takes the answer and letters already guessed and returns the first letter that is in word and has not been guessed yet
 reveal_letter :: [Char] -> [Char] -> Char
 reveal_letter ans ltrs_g = head [c | c <- ans, c `notElem` ltrs_g] 
-
 
 -- checks if char is a vowel
 isVowel :: Char -> Bool 

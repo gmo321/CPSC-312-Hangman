@@ -41,7 +41,7 @@ play game start_state ts =
                             if num < 0 || num >= (wBLength wordBank)
                                 then 
                                     do 
-                                putStrLn ("Number not in defined range.")
+                                putStrLn ("Number not in defined range.\n")
                                 play game start_state ts
                             else 
                                 person_play game (ContinueGame (generateWord start_state num)) ts
@@ -58,7 +58,7 @@ person_play game (ContinueGame state) ts =
     line <- getLine
     if line == "0"
       then letter_guess game (ContinueGame state) ts 
-    else if line ==  "1"
+    else if line == "1"
         then print_hint game (ContinueGame state) ts
     else person_play game (ContinueGame state) ts 
 
@@ -73,12 +73,8 @@ letter_guess :: Game -> Result -> TournammentState -> IO TournammentState
 letter_guess game (ContinueGame state) ts = 
     do 
         let State (ltrs_guessed, word, guesses, hints) avail = state
-        -- show guess is one less???
-        putStrLn("Available moves: " ++ show avail)
-        -- Number of guesses is not decrementing in hangman function!
-        -- hangman figure is also not changing when guess is wrong
-        putStrLn("Please enter a letter in the alphabet wrapped in single quotations marks")
-        ---- test what happens if they enter a letter not wrapped in single quotation mark
+        putStrLn("Please choose one letter from the available moves shown: " ++ show avail)
+        putStrLn("Please enter a letter wrapped in single quotations marks")
         input <- getLine
         case (readMaybe input :: Maybe Char) of
             Nothing ->
@@ -89,12 +85,12 @@ letter_guess game (ContinueGame state) ts =
                     if (not(isAlphabet lc_guess)) -- if not a letter
                         then 
                             do
-                                putStrLn("Please choose a letter in the alphabet.")
+                                putStrLn("Please choose a letter in the alphabet.\n")
                                 letter_guess game (ContinueGame state) ts
                     else if (lc_guess `elem` ltrs_guessed) -- if guessing a letter already guessed
                         then 
                             do
-                                putStrLn("Please choose a letter that hasn't been chosen yet")
+                                putStrLn("Please choose a letter that hasn't been chosen yet.\n")
                                 letter_guess game (ContinueGame state) ts
                     else 
                         do 
@@ -110,8 +106,6 @@ letter_guess game (ContinueGame state) ts =
                                     do
                                         putStrLn("Incorrect Guess!")
                                         putStrLn("Number of guesses left: " ++ show (guesses - 1))
-                                        -- exception when guesses < 0
-                                        -- might need an if statement
                                         drawHangman (State (ltrs_guessed, word, guesses - 1, hints) avail)
                             person_play game (game (lc_guess) state) ts
 
@@ -128,12 +122,12 @@ print_hint game (ContinueGame state) ts =
                     if (hints == 3)
                         then 
                             do
-                                putStrLn ("The total number of times a vowel appears in the word is " ++show (num_vowels word))
+                                putStrLn ("The total number of times a vowel appears in the word is: " ++show (num_vowels word))
                                 person_play game (ContinueGame (updateHint state)) ts 
                     else if (hints > 0)
                         then 
                             do 
-                                putStrLn ("The next missing letter is:" ++[reveal_letter word ltrs_guessed])
+                                putStrLn ("The next missing letter is: " ++[reveal_letter word ltrs_guessed])
                                 person_play game (ContinueGame (updateHint state)) ts
                     else 
                         do 
