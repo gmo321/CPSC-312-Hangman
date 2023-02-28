@@ -1,3 +1,4 @@
+----- This is adapted from MagicSum.hs from UBC CPSC 312 2023 from David Poole -----
 {-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
 {-# HLINT ignore "Use newtype instead of data" #-}
 {-# HLINT ignore "Use camelCase" #-}
@@ -8,7 +9,8 @@ import Text.Read   (readMaybe)
 import Control.Monad
 
 
--- adapted from MagicSum.hs
+----- Type Definitions -----
+
 data State = State InternalState [Char]  -- internal_state, available_actions
          deriving (Ord, Eq, Show)
 
@@ -19,18 +21,18 @@ data Result = EndOfGame Double State    -- end of game: value, starting state
 
 type Game = Char -> State -> Result
 
--- Actions for player
+
 data Action = Letter Char  -- a move for a player is just Char
          deriving (Ord,Eq)
 
-type InternalState = ([Char], [Char], Int, Int)   -- may need to be modified
--- (letters guessed, word to guess, # of guesses left, # of hints left)
+type InternalState = ([Char], [Char], Int, Int)   
+-- represents (letters guessed, word to guess, # of guesses left, # of hints left)
 
------ Word Bank Functions ---
+----- Word Bank Functions -----
 
 -- Citation: https://www.kaggle.com/datasets/ramiromelo/10000-words?resource=download; https://random-ize.com/randomize-list/
 -- Took 1000 words from referenced list and used random generator to shuffle words
--- Word bank
+-- function to call word bank
 wordBank :: [[Char]]
 wordBank = ["instrument","lands","remark","rugby","please","announces","prof","carlos","tokyo","household","chest","projectors","involved","priorities","terrain","critical","south","kevin","regions","subscription","julia","certificates","linking","centered","diversity","court","aa",
             "countries","equations","dump","cds","meanwhile","artwork","reseller","legal","filing","orchestra","bobby","berkeley","map","venture","fathers","finals","tripadvisor","unemployment","seeker","constructed","eating","coffee","spell","pulling","aside","cathedral","unlikely",
@@ -77,37 +79,26 @@ wBLength [] = 0
 wBLength (h:t) = 1 + wBLength t
 
 
---prints out file
-{-
-main :: IO()
-main = do
-    contents <- readFile "wordbank.txt"
-    putStr contents
--}
-
---prints out wordbank.txt as a list of strings
-{-
-wBList :: IO [String]
-wBList = do
-    contents <- readFile "wordbank.txt"
-    return (lines contents)
--}
-
 
 ----- Hangman Start State Function -----
 
+-- Initial state:
 -- empty list for letters guessed so far
 -- empty word 
 -- start wth 6 guesses since there is only six body parts
 -- start with 3 hints to use
--- set the initial state
 
+
+-- initial state for the game
 hangmanStart :: State
-hangmanStart = State ([], "", 6, 3) ['a'..'z']  --  change for letters
+hangmanStart = State ([], "", 6, 3) ['a'..'z']  
 
+-- finds the corresponding word in the word bank based on the number the player enters
+-- stores the word in the state
 generateWord :: State -> Int -> State
 generateWord (State (ltrs_guessed, word, guesses, hints) avail) num = 
     State (ltrs_guessed, wordBank !! num, guesses, hints) avail
+
 
 ----- Hangman Game ------
 hangman :: Game
@@ -122,7 +113,8 @@ hangman move (State (ltrs_guessed, word, guesses, hints) available)
                         [act | act <- available, act /= move])
 
                         
--- takes in move, the answer, the letters guessed and returns true if word_str matches ans
+-- function to check if player has won
+-- takes in move, the answer, the letters guessed and returns true if all letters in word is in letters gussed
 win :: Char -> [Char] -> [Char] -> Bool
 win move word ltrs_guessed =  and [ x `elem` move:ltrs_guessed | x <- word]
 
@@ -155,7 +147,7 @@ updateHint (State (ltrs_guessed, word, guesses, hints) avail)
     | hints == 0 = State (ltrs_guessed, word, guesses, hints) avail
     | otherwise  = State (ltrs_guessed, word, guesses, hints - 1) avail
 
--- Takes the answer and letters already guessed and returns the first letter that is in word and has not been guessed yet
+-- takes the answer and letters already guessed and returns the first letter that is in word and has not been guessed yet
 reveal_letter :: [Char] -> [Char] -> Char
 reveal_letter ans ltrs_g = head [c | c <- ans, c `notElem` ltrs_g] 
 
@@ -179,7 +171,7 @@ drawHangman (State (ltrs_guessed, word, guesses, hints) avail)
     | guesses == 0   = zeroGuesses
 
 
------ functions to print the hangman based on guesses -----
+----- Functions to print the hangman based on guesses -----
 
 -- 0 wrong guesses, 6 guesses left        
 sixGuesses:: IO()

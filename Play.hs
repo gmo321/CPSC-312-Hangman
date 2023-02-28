@@ -1,13 +1,9 @@
--- CPSC 312 - 2023 - Games in Haskell
+----- This is adapted from Play.hs from UBC CPSC 312 2023 from David Poole -----
 {-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
 {-# HLINT ignore "Use camelCase" #-}
 {-# HLINT ignore "Redundant bracket" #-}
-module Play where
 
--- To run it, try:
--- ghci
--- :load Play
--- play hangman hangmanStart (0,0)
+module Play where
 
 import Hangman
  -- importing our hangman file
@@ -15,13 +11,13 @@ import System.IO
 import Text.Read   (readMaybe)
 
 
-
+-- type definition for tournament state to track wins and losses
 type TournammentState = (Int,Int)   -- wins, losses
 
+-- function for starting the game and setting the initial state
 play :: Game -> State -> TournammentState -> IO TournammentState
 
--- dislay tournament results
--- begin guessing
+
 play game start_state ts =
   let (wins, losses) = ts in
   do
@@ -49,8 +45,8 @@ play game start_state ts =
             then return ts 
         else play game start_state ts
 
+-- function for person to begin either guessing a letter or getting a hint
 person_play :: Game -> Result -> TournammentState -> IO TournammentState
--- person is guessing a letter
 
 person_play game (ContinueGame state) ts = 
   do
@@ -65,7 +61,7 @@ person_play game (ContinueGame state) ts =
 -- end of game, tracking score                
 person_play game (EndOfGame val start_state) ts =
   do
-    new_ts <- update_tournament_state (val) ts  -- val is value to computer; -val is value for person
+    new_ts <- update_tournament_state (val) ts  
     play game start_state new_ts
 
 -- guessing a letter
@@ -119,12 +115,12 @@ print_hint game (ContinueGame state) ts =
         if (line == "0")
             then
                 do 
-                    if (hints == 3)
+                    if (hints == 3) -- very first hint
                         then 
                             do
                                 putStrLn ("The total number of times a vowel appears in the word is: " ++show (num_vowels word))
                                 person_play game (ContinueGame (updateHint state)) ts 
-                    else if (hints > 0)
+                    else if (hints > 0) -- remaining hints
                         then 
                             do 
                                 putStrLn ("The next missing letter is: " ++[reveal_letter word ltrs_guessed])
@@ -134,16 +130,15 @@ print_hint game (ContinueGame state) ts =
                             putStrLn "There are no hints left."
                             person_play game (ContinueGame (updateHint state)) ts
 
-        else 
+        else -- trying to get more hints
             do 
                 putStrLn "Incorrect input." 
                 print_hint game (ContinueGame state) ts    
 
 
 
-
-update_tournament_state:: Double -> TournammentState -> IO TournammentState
 -- given value to the person, the tournament state, return the new tournament state
+update_tournament_state:: Double -> TournammentState -> IO TournammentState
 update_tournament_state val (wins,losses)
   | val == 1 = do
       putStrLn "You won!"
